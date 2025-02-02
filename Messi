@@ -1,0 +1,93 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import Image from "next/image"
+
+export default function Home() {
+  const [timeElapsed, setTimeElapsed] = useState({
+    years: 0,
+    months: 0,
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  })
+
+  useEffect(() => {
+    const goalDate = new Date("2017-04-23T22:45:00")
+
+    const updateElapsedTime = () => {
+      const now = new Date()
+      let years = now.getFullYear() - goalDate.getFullYear()
+      let months = now.getMonth() - goalDate.getMonth()
+      let days = now.getDate() - goalDate.getDate()
+      let hours = now.getHours() - goalDate.getHours()
+      let minutes = now.getMinutes() - goalDate.getMinutes()
+      let seconds = now.getSeconds() - goalDate.getSeconds()
+
+      if (seconds < 0) {
+        seconds += 60
+        minutes--
+      }
+      if (minutes < 0) {
+        minutes += 60
+        hours--
+      }
+      if (hours < 0) {
+        hours += 24
+        days--
+      }
+      if (days < 0) {
+        const daysInLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate()
+        days += daysInLastMonth
+        months--
+      }
+      if (months < 0) {
+        months += 12
+        years--
+      }
+
+      setTimeElapsed({ years, months, days, hours, minutes, seconds })
+    }
+
+    updateElapsedTime()
+    const timer = setInterval(updateElapsedTime, 1000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
+      <h1 className="mb-8 text-4xl font-bold text-center">كم من الوقت مر منذ هدف ميسي الشهير على ريال مدريد؟</h1>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center mb-8">
+        <TimeUnit value={timeElapsed.years} unit="سنوات" />
+        <TimeUnit value={timeElapsed.months} unit="أشهر" />
+        <TimeUnit value={timeElapsed.days} unit="أيام" />
+        <TimeUnit value={timeElapsed.hours} unit="ساعات" />
+        <TimeUnit value={timeElapsed.minutes} unit="دقائق" />
+        <TimeUnit value={timeElapsed.seconds} unit="ثواني" />
+      </div>
+      <p className="mb-8 text-xl">الهدف سُجل في 23 أبريل 2017 الساعة 10:45 مساءً</p>
+      <div className="relative w-full max-w-lg rounded-lg overflow-hidden shadow-xl">
+        <Image
+          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/%D8%AA%D9%86%D8%B2%D9%8A%D9%84%20(3).webp-Qsw8ilvcFon1GDAg7t6kfE6a8T1sG2.jpeg"
+          alt="Messi celebrating his goal against Real Madrid by showing his jersey"
+          width={800}
+          height={1000}
+          className="w-full h-auto"
+          priority
+        />
+      </div>
+    </main>
+  )
+}
+
+function TimeUnit({ value, unit }: { value: number; unit: string }) {
+  return (
+    <div className="bg-white bg-opacity-20 rounded-lg p-4">
+      <div className="text-4xl font-bold">{value}</div>
+      <div className="text-xl">{unit}</div>
+    </div>
+  )
+}
+
